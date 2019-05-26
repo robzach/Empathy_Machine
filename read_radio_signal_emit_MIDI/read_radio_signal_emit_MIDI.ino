@@ -61,7 +61,7 @@ void loop() {
       if (readVal[i] < lowest[i]) lowest[i] = readVal[i];
     }
 
-    // scale observed output to 0–255 range
+    // scale observed output to 0–127 MIDI range
     int outVal[3];
     for (int i = 0; i < sizeof(readVal) / sizeof(readVal[0]); i++) {
       outVal[i] = map(readVal[i], lowest[i], highest[i], 0, 127);
