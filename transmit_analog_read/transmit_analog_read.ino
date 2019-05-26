@@ -13,7 +13,7 @@
  * SCK          13                      SCK
  *          
  * 
- * Value observed on analog pin A0 is transmitted.
+ * Values observed on analog pins A0, A1, and A2 are transmitted.
  * 
  *
  * modified from code by: Alton Olson, Vicky Zhou, Seema Kamath
@@ -26,7 +26,9 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 
-const int ANALOG_READ_PIN = A0;
+const int XPIN = A0;
+const int YPIN = A1;
+const int ZPIN = A2;
 
 const int RADIO_CE = 7;
 const int RADIO_CSN = 8;
@@ -40,13 +42,21 @@ void setup() {
   radio.openWritingPipe(address);
   radio.setPALevel(RF24_PA_HIGH);
   radio.stopListening();
+
+  pinMode(XPIN, INPUT);
+  pinMode(YPIN, INPUT);
+  pinMode(ZPIN, INPUT);
 }
 
 void loop() {
-  // read analog value
-  int reading = analogRead(ANALOG_READ_PIN);
+  // read analog values
+  int reading[3] = {
+    analogRead(XPIN),
+    analogRead(YPIN),
+    analogRead(ZPIN)
+  };
 
-  // transmit value
+  // transmit values
   radio.write(&reading, sizeof(reading));
   delay(1);
 }
