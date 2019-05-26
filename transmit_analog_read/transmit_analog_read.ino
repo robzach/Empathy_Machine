@@ -3,14 +3,15 @@
  * 
  * Uses NRF24L01 transceiver module to repeatedly transmit analog data.
  * 
- * radio pin    Arduino pin
- * VCC          3.3V
- * GND          GND
- * CE           7
- * CSN          8
- * MOSI         11
- * MISO         12
- * SCK          13
+ * radio pin    Arduino Uno pin   Arduino Micro pin
+ * VCC          3.3V              3.3V
+ * GND          GND               GND
+ * CE           7                 7
+ * CSN          8                 8
+ * MOSI         11                MO
+ * MISO         12                MI
+ * SCK          13                SCK
+ *          
  * 
  * Value observed on analog pin A0 is transmitted.
  * 
