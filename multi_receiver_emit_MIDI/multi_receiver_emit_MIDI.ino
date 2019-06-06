@@ -21,6 +21,13 @@
    SCK          13                      SCK
 
 
+   16x2 LCD matrix pin  Arduino pin
+   SDA                  2
+   SCL                  3
+
+   momentary pushbutton from Arduino pin 5 to ground
+
+
    adapted from "MultiTxAckPayload" by user Robin2 on Arduino.cc forum
    Robert Zacharias, rz@rzach.me, 6-5-19
 */
@@ -29,9 +36,11 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 // user presses this button to isolate MIDI inputs
-const int BUTTON_PIN = 2;
+const int BUTTON_PIN = 5;
 byte MIDImode = 0;
 bool oldButtonState = false;
 
@@ -54,9 +63,17 @@ int receivedData[4] = { -1, -1, -1, -1}; // to hold all four read values
 // values used for auto-ranging for MIDI output
 int highest[4] = {0, 0, 0, 0};
 int lowest[4] = {1023, 1023, 1023, 1023};
+int outVal[4] = {0, 0, 0, 0};
+
+// set up LCD display
+LiquidCrystal_I2C screen(0x27, 16, 2);
 
 unsigned long prevMillis;
 const unsigned long POLLING_INTERVAL = 10; // milliseconds between polling
+
+unsigned long prevLCDMillis;
+const unsigned long LCD_POLLING_INTERVAL = 250;
+
 
 void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -64,6 +81,9 @@ void setup() {
   radio.setDataRate( RF24_250KBPS );
   radio.enableAckPayload();
   radio.setRetries(3, 5); // delay, count
+
+  screen.init();
+  screen.backlight();
 
   Serial.begin(9600);
 }
@@ -73,18 +93,22 @@ void loop() {
 
     pollForRadioData();
     writeToMIDI();
-
     prevMillis = millis();
   }
-  
+
+  if (millis() - prevLCDMillis >= LCD_POLLING_INTERVAL){
+    printToLCD();
+    prevLCDMillis = millis();
+  }
+
   bool buttonState = !digitalRead(BUTTON_PIN);
-  if (buttonState && !oldButtonState){
+  if (buttonState && !oldButtonState) {
     MIDImode++;
     MIDImode %= 5;
     delay(50);
   }
   oldButtonState = buttonState;
-  
+
 }
 
 void pollForRadioData() {
@@ -125,7 +149,6 @@ void writeToMIDI() {
   }
 
   // scale observed output to 0–127 MIDI range
-  int outVal[4];
   for (int i = 0; i < sizeof(receivedData) / sizeof(receivedData[0]); i++) {
     outVal[i] = map(receivedData[i], lowest[i], highest[i], 0, 127);
   }
@@ -135,13 +158,13 @@ void writeToMIDI() {
       controlChange(0, 10, outVal[0]);
       break;
     case 2: // transmit only second MIDI value
-      controlChange(0, 11, outVal[0]);
+      controlChange(0, 11, outVal[1]);
       break;
     case 3: // transmit only third MIDI value
-      controlChange(0, 12, outVal[0]);
+      controlChange(0, 12, outVal[2]);
       break;
     case 4: // transmit only fourth MIDI value
-      controlChange(0, 13, outVal[0]);
+      controlChange(0, 13, outVal[3]);
       break;
     case 0:
     default:
@@ -157,4 +180,20 @@ void writeToMIDI() {
 void controlChange(byte channel, byte control, byte value) {
   midiEventPacket_t event = {0x0B, 0xB0 | channel, control, value};
   MidiUSB.sendMIDI(event);
+}
+
+void printToLCD() {
+  screen.clear();
+  screen.setCursor(0, 0);
+  screen.print(outVal[0]);
+  if (MIDImode == 1) screen.print('*');
+  screen.setCursor(8, 0);
+  screen.print(outVal[1]);
+  if (MIDImode == 2) screen.print('*');
+  screen.setCursor(0, 1);
+  screen.print(outVal[2]);
+  if (MIDImode == 3) screen.print('*');
+  screen.setCursor(8, 1);
+  screen.print(outVal[3]);
+  if (MIDImode == 4) screen.print('*');
 }
