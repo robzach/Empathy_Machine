@@ -185,15 +185,15 @@ void controlChange(byte channel, byte control, byte value) {
 void printToLCD() {
   screen.clear();
   screen.setCursor(0, 0);
-  screen.print(outVal[0]);
+  screen.print((String)"10:" + outVal[0]);
   if (MIDImode == 1) screen.print('*');
   screen.setCursor(8, 0);
-  screen.print(outVal[1]);
+  screen.print((String)"11:" + outVal[1]);
   if (MIDImode == 2) screen.print('*');
   screen.setCursor(0, 1);
-  screen.print(outVal[2]);
+  screen.print((String)"12:" + outVal[2]);
   if (MIDImode == 3) screen.print('*');
   screen.setCursor(8, 1);
-  screen.print(outVal[3]);
+  screen.print((String)"13:" + outVal[3]);
   if (MIDImode == 4) screen.print('*');
 }
