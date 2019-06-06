@@ -21,7 +21,7 @@
    SCK          13                      SCK
 
 
-   16x2 LCD matrix pin  Arduino pin
+   20x4 LCD matrix pin  Arduino pin
    SDA                  2
    SCL                  3
 
@@ -66,7 +66,7 @@ int lowest[4] = {1023, 1023, 1023, 1023};
 int outVal[4] = {0, 0, 0, 0};
 
 // set up LCD display
-LiquidCrystal_I2C screen(0x27, 16, 2);
+LiquidCrystal_I2C screen(0x27, 20, 4);
 
 unsigned long prevMillis;
 const unsigned long POLLING_INTERVAL = 10; // milliseconds between polling
@@ -185,15 +185,15 @@ void controlChange(byte channel, byte control, byte value) {
 void printToLCD() {
   screen.clear();
   screen.setCursor(0, 0);
-  screen.print((String)"10:" + outVal[0]);
-  if (MIDImode == 1) screen.print('*');
-  screen.setCursor(8, 0);
-  screen.print((String)"11:" + outVal[1]);
-  if (MIDImode == 2) screen.print('*');
+  screen.print((String)"ch 10: " + outVal[0]);
+  if (MIDImode == 1) screen.print(" SOLO");
   screen.setCursor(0, 1);
-  screen.print((String)"12:" + outVal[2]);
-  if (MIDImode == 3) screen.print('*');
-  screen.setCursor(8, 1);
-  screen.print((String)"13:" + outVal[3]);
-  if (MIDImode == 4) screen.print('*');
+  screen.print((String)"ch 11: " + outVal[1]);
+  if (MIDImode == 2) screen.print(" SOLO");
+  screen.setCursor(0, 2);
+  screen.print((String)"ch 12: " + outVal[2]);
+  if (MIDImode == 3) screen.print(" SOLO");
+  screen.setCursor(0, 3);
+  screen.print((String)"ch 13: " + outVal[3]);
+  if (MIDImode == 4) screen.print(" SOLO");
 }
