@@ -1,4 +1,4 @@
-// basis of Graphing sketch from tom igoe
+// basis of Graphing sketch from tom igoe //<>//
 
 /* 2/11/15 end of day progress: sketch talks to arduino, tells it to move, and then doesn't display
  anything other than a black background. 
@@ -28,7 +28,7 @@
  
  
  7-31-19 forking from Amelia project!
- 
+ * adding sound
  
  
  */
@@ -62,9 +62,14 @@ import processing.serial.*;
 Serial myPort;
 String portName = "/dev/cu.usbmodemMIDI1";
 
-// speech
-import guru.ttslib.*;
-TTS tts;
+import processing.sound.*;
+SinOsc sine;
+float freq=400;
+float amp=0.5;
+float pos;
+
+public int MAXFREQ = 1000;
+public int MINFREQ = 20;
 
 // GUI elements
 import controlP5.*;
@@ -87,7 +92,7 @@ void setup () {
   myPort = new Serial(this, portName, 9600);
   // don't generate a serialEvent() unless you get a newline character:
   myPort.bufferUntil('\n');
-  
+
   //cp5 = new ControlP5(this);
 
   //cp5.addToggle("toggleValue")
@@ -103,6 +108,11 @@ void setup () {
   //  .setValue(50)
   //  ;
 
+
+  sine = new SinOsc(this);
+  //Start the Sine Oscillator. 
+  sine.play();
+
   background(0);
   fill(255);
 }
@@ -112,6 +122,11 @@ void draw () {
   background(0);
   drawLegend();
   drawGraphLines();
+  float frequency = map(positions[2], 0, 1023, 200, 2);
+  if (positions[2] < 5) frequency = 0;
+  
+  sine.freq(frequency); // currently the pressure sensor
+  
 }
 
 void steadyTest() {
@@ -128,13 +143,12 @@ void steadyTest() {
     history[cycleCounter] = positions[0];
     cycleCounter++;
   }
-  
+
   int sum = 0;
   for (int i = 0; i < cycleCounter; i++) sum += history[i];
-  
+
   float meanHeight = sum / cycleCounter;
   println(meanHeight);
-  
 }
 
 void drawTaskArea() {
@@ -191,7 +205,7 @@ void drawGraphLines() {
       strokeWeight(3);
     }
     line((i+1)*75, MINGRAPHHEIGHT, 50+((i+1)*75), MINGRAPHHEIGHT);
-    text(positions[i], (i+1)*75, 0); //<>//
+    //text(positions[i], (i+1)*75, 0);
     popMatrix();
   }
 }
@@ -224,7 +238,7 @@ void serialEvent (Serial myPort) {
   while (myPort.available() > 0) { 
     // load serial data into inString
     inString = myPort.readStringUntil('\n');
-    //println(inString);
+    println(inString);
   }
 
   // then parse input into five values
