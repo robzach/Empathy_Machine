@@ -92,7 +92,7 @@ void loop() {
   if (millis() - prevMillis >= POLLING_INTERVAL) {
 
     pollForRadioData();
-    writeToMIDI();
+//    writeToMIDI();
     prevMillis = millis();
   }
 
@@ -130,7 +130,7 @@ void pollForRadioData() {
       }
     }
     else {
-      Serial.println("  Tx failed");
+//      Serial.println("  Tx failed");
     }
   }
 
