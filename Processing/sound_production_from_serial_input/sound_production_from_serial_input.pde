@@ -30,6 +30,9 @@
  7-31-19 forking from Amelia project!
  * adding sound
  
+ 8-6-19 updating with mouse input for vibrato
+ * deleted lots of unused code
+ * 
  
  */
 
@@ -41,22 +44,11 @@ int[] barHeight = new int[NUM_OF_SENSORS]; // scaled data for graphing
 
 int MINGRAPHHEIGHT, MAXGRAPHHEIGHT, GRAPHRANGE;
 
-int TASKAREALEFTEDGE = ((NUM_OF_SENSORS+1)*75); // right edge of graphs = left edge of task area
-int BALLBOUNCELEFTEDGE = TASKAREALEFTEDGE + 400;
 int counter = 0;
 
-// used in bouncing ball
+public long timer;
 public float speedDivisor = 50;
 
-
-// used in steady test
-public long timer;
-int cycleCounter = 0;
-
-
-boolean VOCALFEEDBACK = false;
-
-float SLOP = 0.05; // factor by which a distance can be ± and still be acceptable
 
 import processing.serial.*;
 Serial myPort;
@@ -67,16 +59,10 @@ SinOsc sine;
 float freq=400;
 float amp=0.5;
 float pos;
+float vibratoMultiplier;
 
 public int MAXFREQ = 1000;
 public int MINFREQ = 20;
-
-// GUI elements
-import controlP5.*;
-ControlP5 cp5;
-boolean toggleValue = false;
-
-boolean thirtycm = false;
 
 void setup () {
 
@@ -93,22 +79,6 @@ void setup () {
   // don't generate a serialEvent() unless you get a newline character:
   myPort.bufferUntil('\n');
 
-  //cp5 = new ControlP5(this);
-
-  //cp5.addToggle("toggleValue")
-  //  .setValue(0)
-  //  .setPosition(TASKAREALEFTEDGE, 200)
-  //  .setSize(25, 25)
-  //  ;
-
-  //cp5.addNumberbox("speedDivisor")
-  //  .setPosition(BALLBOUNCELEFTEDGE-10, 20)
-  //  .setSize(50, 25)
-  //  .setScrollSensitivity(0.5)
-  //  .setValue(50)
-  //  ;
-
-
   sine = new SinOsc(this);
   //Start the Sine Oscillator. 
   sine.play();
@@ -122,76 +92,40 @@ void draw () {
   background(0);
   drawLegend();
   drawGraphLines();
-  float frequency = map(positions[2], 0, 1023, 200, 2);
-  if (positions[2] < 5) frequency = 0;
   
-  sine.freq(frequency); // currently the pressure sensor
+  // start with a standard frequency to change from
+  // this as per Anna's request for a different sort of interaction
+  float frequency = 100;
   
+  
+  // multiply it by a value between 100% and 1% based on the amount of squeeze from the remove device
+  float frequencyMultiplier = map(positions[2], 0, 1023, 1, 0.01);
+  
+  //if (positions[2] < 5) frequency = 0;  
+
+  frequency *= (1+vibratoMultiplier());
+  
+  frequency *= frequencyMultiplier;
+
+  sine.freq(frequency); // drive the sound
+  
+  float amplitude = map(mouseY, height, 0, 0, 1);
+  sine.amp(amplitude);
+
+  //println(frequency);
 }
 
-void steadyTest() {
-  fill(255);
-  text ("Steady Test\ntype \'s\' to begin", BALLBOUNCELEFTEDGE, 400);
+float vibratoMultiplier() {
+  counter++;
 
-  // load 1 second of data into an array
-  int[] history = new int[10000];
-  cycleCounter = 0;
-  timer = millis();
+  float vibratoDivisor = map(mouseX, 0, width, 1, 10);
 
-  // blocking for now but to be improved
-  while (millis() - timer < 1000) {
-    history[cycleCounter] = positions[0];
-    cycleCounter++;
-  }
-
-  int sum = 0;
-  for (int i = 0; i < cycleCounter; i++) sum += history[i];
-
-  float meanHeight = sum / cycleCounter;
-  println(meanHeight);
+  float vibratoMultiplier = 0.1 * (1+sin(counter/vibratoDivisor));
+  //println(vibratoMultiplier);
+  return vibratoMultiplier;
 }
 
-void drawTaskArea() {
-  pushMatrix();
-  translate(TASKAREALEFTEDGE, 50);
 
-
-  // 10cm static test
-  fill(255);
-  text("10cm", 0, 50);
-  for (int j = 0; j < NUM_OF_SENSORS; j++) {
-    if (positions[j] > 95 && positions[j] < 105) {
-      fill(0, 255, 0);
-      text("√", (j+1)*50, 50);
-    } else {
-      fill(255, 0, 0);
-      text ("X", (j+1)*50, 50);
-    }
-  }
-
-  pushMatrix();
-  translate(0, 50);
-  // 50cm static test
-  fill(255);
-  text("50cm", 0, 50);
-  for (int j = 0; j < NUM_OF_SENSORS; j++) {
-    if (positions[j] > 475 && positions[j] < 525) {
-      fill(0, 255, 0);
-      text("√", (j+1)*50, 50);
-    } else {
-      fill(255, 0, 0);
-      text ("X", (j+1)*50, 50);
-    }
-  }
-  popMatrix();
-
-  pushMatrix();
-  translate(0, 150);
-  // up-down instruction
-  popMatrix();
-
-  popMatrix();
-}
 
 void drawGraphLines() {
   for (int i = 0; i<NUM_OF_SENSORS; i++) {
@@ -256,15 +190,5 @@ void serialEvent (Serial myPort) {
   for (int i = 0; i<NUM_OF_SENSORS; i++) {
     positions[i] = constrain(positions[i], 0, 1023);
     barHeight[i] = (int)map(positions[i], 1023, 0, 0, GRAPHRANGE);
-  }
-}
-
-
-
-// unused
-void drawBarGraphs() {
-  for (int i = 0; i<NUM_OF_SENSORS; i++) {
-    fill(255, 0, 0);
-    rect((i+1)*100, 40, 40, barHeight[i]);
   }
 }
