@@ -17,7 +17,7 @@
 
 
    adapted from "MultiTxAckPayload" by user Robin2 on Arduino.cc forum
-   Robert Zacharias, rz@rzach.me, 6-5-19
+   Robert Zacharias, rz@rzach.me, 8-8-19
 */
 
 #include <SPI.h>
@@ -68,11 +68,11 @@ void loop() {
           receivedData[index+1] = ackData[1];
         }
         else {
-          Serial.println("  Acknowledge but no data ");
+//          Serial.println("  Acknowledge but no data ");
         }
       }
       else {
-        Serial.println("  Tx failed");
+//        Serial.println("  Tx failed");
       }
     }
     
