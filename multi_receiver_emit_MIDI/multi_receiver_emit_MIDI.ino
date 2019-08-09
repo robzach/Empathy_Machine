@@ -29,7 +29,7 @@
 
 
    adapted from "MultiTxAckPayload" by user Robin2 on Arduino.cc forum
-   Robert Zacharias, rz@rzach.me, 6-5-19
+   Robert Zacharias, rz@rzach.me, 6-5-19; minor update 8-8-19
 */
 
 #include "MIDIUSB.h"
@@ -92,7 +92,7 @@ void loop() {
   if (millis() - prevMillis >= POLLING_INTERVAL) {
 
     pollForRadioData();
-//    writeToMIDI();
+    writeToMIDI();
     prevMillis = millis();
   }
 
