@@ -29,7 +29,13 @@
 
 
    adapted from "MultiTxAckPayload" by user Robin2 on Arduino.cc forum
-   Robert Zacharias, rz@rzach.me, 6-5-19; minor update 8-8-19
+   Robert Zacharias, rz@rzach.me, 6-5-19
+   minor update 8-8-19
+   8-14-19 update:
+      * for receiving VL53L0X (bigger numbers) data from remote radio:
+        constrains incoming data to [0,1023] before scaling
+      * to reduce error rate, cheaply added a 20ms delay in the radio read loop
+        (this seems to work based on my testing tonight)
 */
 
 #include "MIDIUSB.h"
@@ -96,7 +102,7 @@ void loop() {
     prevMillis = millis();
   }
 
-  if (millis() - prevLCDMillis >= LCD_POLLING_INTERVAL){
+  if (millis() - prevLCDMillis >= LCD_POLLING_INTERVAL) {
     printToLCD();
     prevLCDMillis = millis();
   }
@@ -122,16 +128,21 @@ void pollForRadioData() {
       if ( radio.isAckPayloadAvailable() ) {
         radio.read(&ackData, sizeof(ackData));
         int index = n * 2;
-        receivedData[index] = ackData[0];
-        receivedData[index + 1] = ackData[1];
+        receivedData[index] = constrain(ackData[0], 0, 1023);
+        receivedData[index + 1] = constrain(ackData[1], 0, 1023);
       }
       else {
-        Serial.println("  Acknowledge but no data ");
+        Serial.print("Acknowledge but no data: radio #");
+        Serial.println(POLLED_RADIO_ADDRESS[n][4]); // last digit of radio #
       }
     }
     else {
-//      Serial.println("  Tx failed");
+      Serial.print("Tx failed: radio #");
+      Serial.println(POLLED_RADIO_ADDRESS[n][4]); // last digit of radio #
     }
+
+    // cheap experiment, might be working:
+    delay(20); // slow down a bit to reduce error rate?
   }
 
   for (int i = 0; i < 4; i++) {
