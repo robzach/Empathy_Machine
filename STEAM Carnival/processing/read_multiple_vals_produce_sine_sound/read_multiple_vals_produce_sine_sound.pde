@@ -57,7 +57,7 @@ String[] songNames = {
 
 
 void setup() {
-  size(640, 360);
+  size(1500, 1000);
   background(255);
   final String[] ports = Serial.list();
   //printArray(ports);
@@ -77,13 +77,36 @@ void draw() {
   int volume = int(amp * 100);
   int frequency = int(freq);
   int songPercent = int(rate * 100);
-  textSize(20);
-  text("mode = " + modeText + 
-    "\nsong: " + songNames[songCounter] +
-    "\nvolume: " + volume + "%" +
-    "\nsine wave frequency = " + frequency + "Hz" +
-    "\nmusic playing rate = " + songPercent + "% of the regular speed"
-    , 50, 50);
+  textSize(50);
+  text("now playing: " + modeText + 
+    "\nvolume (amplitude): " + volume + "%", 
+    50, 50);
+  if (prevMode == TONE) {
+    text(
+      "\nsine wave frequency = " + frequency + "Hz", 50, 200);
+  } else {
+    text(
+      "\nsong: " + songNames[songCounter] +
+      "\nmusic playing rate = " + songPercent + "% of regular speed"
+      , 50, 200);
+  }
+
+  // draw a simple sine wave to illustrate 
+  float waveHeight = amp * 200;
+  float waveWidth = 1000/freq;
+  float[] y = new float[width + 1]; // y values of wave points
+
+  // load y values into array
+  for (int x = 0; x < width; x++) {
+    //point(i, waveHeight * (sin(i/waveWidth)));
+    y[x] = waveHeight * sin(x/waveWidth);
+  }
+  
+  translate(0, 2*height/3); // move wave 2/3 down the screen
+  // connect the dots to draw the waves
+  for (int i = 1; i < y.length - 1; i++) {
+    line(i, y[i], i+1, y[i+1]);
+  }
 
 
   // adjust output volume based on knob
@@ -97,7 +120,7 @@ void draw() {
   freq=map(vals[1], 0, 1023, 0.0, 1.0);
   freq = freq * freq; // rescale on exponential curve
   freq=map(freq, 0.0, 1.0, 1, 1000); // scale up to appropriate range
-  if (vals[2] == 1) freq *= pow(2,4); // a four-octave increase if button pushed
+  if (vals[2] == 1) freq *= pow(2, 4); // a four-octave increase if button pushed
   sine.freq(freq);
   // adjust rate of music play based on sliding potentiometer
   rate = map(vals[1], 0, 1023, 0.0, 1.0);
