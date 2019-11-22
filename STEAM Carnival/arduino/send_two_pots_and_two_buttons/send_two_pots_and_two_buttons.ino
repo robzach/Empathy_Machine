@@ -19,6 +19,7 @@ void loop() {
   Serial.print(",");
   Serial.print(!digitalRead(BUTTONPIN));
   Serial.print(",");
-  Serial.println(!digitalRead(SWITCHPIN));
+  Serial.print(!digitalRead(SWITCHPIN));
+  Serial.println(",");
   delay(10);
 }
