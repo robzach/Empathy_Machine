@@ -50,9 +50,9 @@ int songCounter = 0; // index of the currently playing song
 
 String[] songNames = {
   "Vibraphon", 
-  "Tribal Baby", 
-  "Kölderen Polka", 
-  "Buckeye Battle Cry"
+  "Tribal Baby by Satellite Ensemble", 
+  "Kölderen Polka by Tres Tristes Tangos", 
+  "Buckeye Battle Cry (Drums Only) by the OSU Marching Band"
 };
 
 
@@ -72,24 +72,22 @@ void setup() {
 }
 
 void draw() {
-  background(128);
-  String modeText = (prevMode == TONE) ? "sine wave" : "music";
+  background(50);
+
+  String sourceText = (prevMode == TONE) ? "sine wave" : songNames[songCounter];
   int volume = int(amp * 100);
   int frequency = int(freq);
   int songPercent = int(rate * 100);
+  String rateText;
+  if (prevMode == TONE) rateText = "sine wave frequency = " + frequency + "Hz";
+  else rateText = "music playing rate = " + songPercent + "% of regular speed";
+
   textSize(50);
-  text("now playing: " + modeText + 
-    "\nvolume (amplitude): " + volume + "%", 
+  text("Tactile Speaker" + 
+    "\nnow playing: " + sourceText + 
+    "\n\nvolume (amplitude): " + volume + "%" + 
+    "\n" + rateText, 
     50, 50);
-  if (prevMode == TONE) {
-    text(
-      "\nsine wave frequency = " + frequency + "Hz", 50, 200);
-  } else {
-    text(
-      "\nsong: " + songNames[songCounter] +
-      "\nmusic playing rate = " + songPercent + "% of regular speed"
-      , 50, 200);
-  }
 
   // draw a simple sine wave to illustrate 
   float waveHeight = amp * 200;
@@ -101,10 +99,10 @@ void draw() {
     //point(i, waveHeight * (sin(i/waveWidth)));
     y[x] = waveHeight * sin(x/waveWidth);
   }
-  
+
   translate(0, 2*height/3); // move wave 2/3 down the screen
   // connect the dots to draw the waves
-  stroke(255,255,0); // yellow lines
+  stroke(255, 255, 0); // yellow lines
   for (int i = 1; i < y.length - 1; i++) {
     line(i, y[i], i+1, y[i+1]);
   }
