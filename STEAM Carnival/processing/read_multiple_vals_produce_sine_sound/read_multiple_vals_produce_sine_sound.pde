@@ -108,20 +108,26 @@ void draw() {
     line(i, y[i], i+1, y[i+1]);
   }
 
-
-  // adjust output volume based on knob
-  amp=map(vals[0], 0, 1023, 0.0, 1.0);
-  // rescale this to an exponential curve, so lower end of knob travel is more sensitive
-  amp = amp * amp;
-  sine.amp(amp);
-  soundfiles[songCounter].amp(amp);
-
   // adjust sine frequency based on sliding potentiometer
   freq=map(vals[1], 0, 1023, 0.0, 1.0);
   freq = freq * freq; // rescale on exponential curve
   freq=map(freq, 0.0, 1.0, 1, 1000); // scale up to appropriate range
   if (vals[2] == 1) freq *= pow(2, 4); // a four-octave increase if button pushed
   sine.freq(freq);
+
+
+  // adjust output volume based on knob
+  amp=map(vals[0], 0, 1023, 0.0, 1.0);
+  // rescale this to an exponential curve, so lower end of knob travel is more sensitive
+  amp = amp * amp;
+
+  // turn volume down to 20% max for any sine values greater than 20Hz, since it was obnoxiously loud otherwise
+  if (freq > 20 && prevMode == TONE) amp*= 0.2;
+  sine.amp(amp);
+  soundfiles[songCounter].amp(amp);
+
+
+
   // adjust rate of music play based on sliding potentiometer
   rate = map(vals[1], 0, 1023, 0.0, 1.0);
   rate = rate * rate;
