@@ -52,8 +52,8 @@ String[] songNames = {
   "Vibraphon", 
   "Tribal Baby by Satellite Ensemble", 
   "Kölderen Polka by Tres Tristes Tangos", 
-  "Buckeye Battle Cry (Drums Only) by the OSU Marching Band"
-};
+  "Buckeye Battle Cry (Drums Only) by the OSU\nMarching Band"
+}; // OSU newline so it'll wrap in the window properly
 
 
 void setup() {
@@ -83,6 +83,7 @@ void draw() {
   else rateText = "music playing rate = " + songPercent + "% of regular speed";
 
   textSize(50);
+  rectMode(CORNERS);
   text("Tactile Speaker" + 
     "\nnow playing: " + sourceText + 
     "\n\nvolume (amplitude): " + volume + "%" + 
