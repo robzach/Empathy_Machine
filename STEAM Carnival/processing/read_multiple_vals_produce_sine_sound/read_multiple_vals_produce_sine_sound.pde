@@ -104,6 +104,7 @@ void draw() {
   
   translate(0, 2*height/3); // move wave 2/3 down the screen
   // connect the dots to draw the waves
+  stroke(255,255,0); // yellow lines
   for (int i = 1; i < y.length - 1; i++) {
     line(i, y[i], i+1, y[i+1]);
   }
